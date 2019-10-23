@@ -1,0 +1,21 @@
+package ${package}.repository;
+
+
+
+import ${package}.entity.${className};
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+/**
+ * <p>
+ * $!{comments} dao层
+ * </p>
+ *
+ * @author ${author}
+ * @since ${datetime}
+ */
+@Repository
+public interface ${className}Repository extends JpaRepository<${className},String>, JpaSpecificationExecutor<${className}> {
+    List<${className}> findAllByDeviceType(Long deviceType);
+}

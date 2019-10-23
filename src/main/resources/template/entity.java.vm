@@ -1,0 +1,46 @@
+package ${package}.entity.nova;
+
+
+import java.io.Serializable;
+
+
+import java.util.Date;
+import javax.persistence.*;
+import lombok.*;
+
+
+/**
+ * ${comments}
+ *
+ * @author ${author}
+ * @email ${email}
+ * @date ${datetime}
+ */
+@Data
+@Table(name = "${tableName}")
+@Entity
+@GenericGenerator(name = "jpa-uuid", strategy = "uuid")
+public class ${className} implements Serializable{
+	private static final long serialVersionUID=1L;
+
+
+	#foreach ($column in $columns)
+	#if($column.columnName == $pk.columnName)
+		#if($column.comments)
+		/**$column.comments*/
+		#end
+	@Id
+	@GeneratedValue(generator = "jpa-uuid")
+    private $column.attrType $column.attrname;
+	#else
+		#if($column.comments)
+		/**$column.comments*/
+		#end
+    @Column(name ="$column.columnName")
+    private $column.attrType $column.attrname;
+	#end
+
+	#end
+
+
+}

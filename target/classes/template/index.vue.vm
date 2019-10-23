@@ -1,0 +1,188 @@
+<template>
+    #set($Var="$")
+    <div class="app-container">
+        <div class="filter-container">
+            <el-input v-model="listQuery.name" clearable placeholder="请输入名称" style="width: 200px;" class="filter-item"
+                      @keyup.enter.native="handleFilter"/>
+            <el-button type="primary" plain @click="handleFilter" class="filter-item">搜索</el-button>
+            <el-button type="primary" plain @click="create${className}" class="filter-item">创建${className}</el-button>
+        </div>
+        <el-table
+                v-loading="listLoading"
+                :data="list"
+                border
+                fit
+                highlight-current-row
+                style="width: 100%;margin-top: 20px"
+        >
+            #foreach ($column in $columns)
+                <el-table-column label="$column.comments" prop="$column.attrname" align="center" width="200">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.$column.attrname}}</span>
+                    </template>
+                </el-table-column>
+
+            #end
+            <el-table-column label="操作" align="center"  fixed="right" width="400" class-name="small-padding fixed-width">
+                <template slot-scope="scope">
+                    <el-button type="primary" size="mini" @click="edit${className}(scope.row)">编辑</el-button>
+                    <el-button type="danger" size="mini" @click="delete${className}(scope.row)">删除</el-button>
+
+                </template>
+            </el-table-column>
+        </el-table>
+        <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit"
+                    @pagination="getList"/>
+
+        <el-dialog title="${className}管理" :visible.sync="dialogFormVisible" :close-on-click-modal=false>
+            <el-form :model="temp" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+                #foreach ($column in $columns)
+                    <el-form-item label="$column.comments" prop="$column.attrname">
+                        <el-input v-model="temp.$column.attrname"></el-input>
+                    </el-form-item>
+                #end
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="save${className}('ruleForm')">提交</el-button>
+                <el-button @click="reset${className}Form('ruleForm')">取消</el-button>
+            </div>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+
+    import Pagination from '@/components/Pagination'
+    import {findPage, create${className}, modify${className}, delete${className}} from '@/api/${secondModuleName}' // Secondary package based on el-pagination
+
+    export default {
+        name: '${className}',
+        components: {Pagination},
+        data() {
+            return {
+                temp: {
+                    #foreach ($column in $columns)
+                        $column.attrname:null ,
+                    #end
+                },
+                list: null,
+                total: 0,
+                listLoading: true,
+                listQuery: {
+                    page: 1,
+                            limit: 20,
+                    name: null
+                },
+                dialogFormVisible: false,
+                editFlag:0,
+                rules: {
+                #foreach ($column in $columns)
+                    $column.attrname: [
+                        {required: true, message: '请输入$column.comments', trigger: 'blur'}
+                    ],
+                #end
+                }
+            }
+        },
+        created() {
+            this.getList()
+        },
+        methods: {
+            handleFilter() {
+                this.listQuery.page = 1
+                this.getList()
+            },
+            save${className}(formName) {
+                this.${Var}refs[formName].validate((valid) => {
+                if (valid) {
+                if(this.editFlag===0){
+                create${className}(
+                this.temp
+                ).then(response => {
+                this.$message({
+                message: '保存成功',
+                type: 'success'
+                });
+                this.getList();
+                this.reset${className}Form('ruleForm')
+                })
+                }else {
+                modify${className}(
+                this.temp
+                ).then(response => {
+                this.${Var}message({
+                message: '保存成功',
+                type: 'success'
+                });
+                this.getList();
+                this.reset${className}Form('ruleForm')
+                })
+
+                }
+
+
+                } else {
+                this.${Var}message.error('保存失败,请重试');
+                return false;
+                }
+                });
+            },
+            reset${className}Form(formName) {
+                this.${Var}refs[formName].resetFields();
+                this.dialogFormVisible = false;
+            },
+            getList() {
+                this.listLoading = true
+                findPage(this.listQuery).then(response => {
+                    this.list = response.data.content;
+                    this.total = response.data.totalElements;
+                    this.listLoading = false
+                })
+            },
+            create${className}() {
+                this.resetTemp()
+                this.dialogFormVisible = true;
+                this.editFlag=0;
+            },
+            edit${className}(item) {
+                this.resetTemp()
+                #foreach ($column in $columns)
+                    this.temp.$column.attrname = item.$column.attrname;
+                #end
+                this.dialogFormVisible = true;
+                this.editFlag=1;
+            },
+
+            resetTemp() {
+                this.temp = {
+                #foreach ($column in $columns)
+                    $column.attrname:null ,
+                #end
+            }
+            },
+            delete${className}(row) {
+                this.${Var}confirm('此操作将永久删除, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    delete${className}(row.image_uuid).then(response => {
+                        this.getList();
+                        this.${Var}message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                    })
+
+                }).catch(() => {
+                    this.${Var}message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            }
+
+
+        }
+    }
+</script>

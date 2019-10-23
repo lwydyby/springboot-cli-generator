@@ -1,0 +1,43 @@
+image: docker
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository/
+    - target/
+
+stages:
+  - build
+  - docker
+  - deploy
+
+
+build:
+  stage: build
+  image: maven:alpine
+  script:
+    - mvn package -DskipTests
+  artifacts:
+    paths:
+      - target
+    expire_in: 1 week
+
+docker:
+  stage: docker
+  image: docker
+  script:
+    - DATE=`date +%Y%m%d`
+    - TAG=$DATE-$CI_JOB_ID
+    - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTER}
+    - docker build -t ${DOCKER_REGISTER}/${PROJECT_NAME}:$TAG .
+    - docker push ${DOCKER_REGISTER}/${PROJECT_NAME}:$TAG
+    - docker tag ${DOCKER_REGISTER}/${PROJECT_NAME}:$TAG ${DOCKER_REGISTER}/${PROJECT_NAME}:latest
+    - docker push ${DOCKER_REGISTER}/${PROJECT_NAME}:latest
+
+deploy:
+  stage: deploy
+  image: lwydyby/rancher-gitlab-deploy:latest
+  script:
+    - bash  /data/update.sh ${PROJECT_NAME} ${RANCHER_WORKSPACE} ${RANCHER_NAMESPACE} ${RANCHER_IP} ${RANCHER_TOKEN}

@@ -1,0 +1,24 @@
+package ${package}.service;
+
+import cn.ctyun.throne.hodor.entity.${className};
+import java.util.List;
+/**
+ * <p>
+ * $!{comments} 服务类
+ * </p>
+ *
+ * @author ${author}
+ * @since ${datetime}
+ */
+public interface ${className}Service {
+
+    List<${className}> getAll${className}(${className}Search ${secondModuleName}Search);
+
+    ${className} save${className}(${className} ${secondModuleName});
+
+    ${className} get${className}(String id);
+
+    ${className} update${className}(${className} ${secondModuleName},String id);
+
+    void delete${className}(String id);
+}

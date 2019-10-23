@@ -1,0 +1,39 @@
+import request from '@/utils/request'
+import Qs from 'qs'
+
+export function findPage(params) {
+    return request({
+        url: '/${secondModuleName}/findPage',
+        method: 'get',
+        params
+
+    })
+}
+
+export function create${className}(params) {
+    return request({
+        url: '/${secondModuleName}/create${className}',
+        method: 'post',
+        data: params
+
+    })
+}
+
+export function modify${className}(params) {
+    return request({
+        url: '/${secondModuleName}/modify${className}',
+        method: 'put',
+        data: params
+
+    })
+}
+
+export function delete${className}(params) {
+    return request({
+        url: '/${secondModuleName}/delete${className}?id='+params,
+        method: 'delete'
+
+    })
+}
+
+

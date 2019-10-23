@@ -1,0 +1,63 @@
+package ${package}.service.impl;
+
+import ${package}.entity.${className};
+import ${package}.repository.${className}Repository;
+import ${package}.service.${className}Service;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+/**
+ * <p>
+ * $!{comments} 服务实现类
+ * </p>
+ *
+ * @author ${author}
+ * @since ${datetime}
+ */
+@Service
+public class ${className}Service {
+
+
+    @Autowired
+    private ${className}Repository ${secondModuleName}Repository;
+
+
+    public Page<${className}> findPage(${className}Query ${secondModuleName}Query){
+        Pageable pageable= PageRequest.of(${secondModuleName}Query.getPage() - 1, ${secondModuleName}Query.getLimit());
+        Specification<${className}> specification=(Specification<${className}>) (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.equal(root.get("rpId"), ${secondModuleName}Query.getResource_pool()));
+            predicates.add(criteriaBuilder.equal(root.get("isDel"), 0));
+
+            if (!StringUtils.isEmpty(${secondModuleName}Query.getName())) {
+                predicates.add(criteriaBuilder.like(root.get("name"),"%"+${secondModuleName}Query.getName()+"%"));
+            }
+            return query.where(predicates.toArray(new Predicate[predicates.size()])).getRestriction();
+
+        };
+        return ${secondModuleName}Repository.findAll(specification,pageable);
+    }
+
+    public void create${className}(${className} ${secondModuleName}){
+        Optional<${className}> ${secondModuleName}1=${secondModuleName}Repository.findByNameAndRpIdAndIsDel(${secondModuleName}.getName(),${secondModuleName}.getRpId(),0);
+        if(${secondModuleName}1.isPresent()){
+            throw new BaseException("该集群已存在");
+        }
+        ${secondModuleName}.setIsDel(0);
+        ${secondModuleName}Repository.saveAndFlush(${className});
+    }
+
+    public void modify${className}(${className} ${secondModuleName}){
+        Optional<${className}> ${secondModuleName}1=${secondModuleName}Repository.findById(${secondModuleName}.getId());
+        ${className} old=${secondModuleName}1.orElseThrow(()->new BaseException("该集群不存在"));
+        MyBeanUtils.copyProperties(${secondModuleName},old);
+        ${secondModuleName}Repository.saveAndFlush(old);
+    }
+
+    public void delete${className}(Long id){
+        Optional<${className}> ${secondModuleName}1=${secondModuleName}Repository.findById(id);
+        ${className} old=${secondModuleName}1.orElseThrow(()->new BaseException("该集群不存在"));
+        old.setIsDel(1);
+        ${secondModuleName}Repository.saveAndFlush(old);
+    }
+
+}
